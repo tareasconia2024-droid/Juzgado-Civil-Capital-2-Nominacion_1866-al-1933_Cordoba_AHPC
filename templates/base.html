@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}AHPC · Juzgado Civil 2°{% endblock %}</title>
+  <style>
+    :root {
+      --navy:    #0f2744;
+      --blue:    #1a4a7a;
+      --mid:     #2563a8;
+      --accent:  #3b82d4;
+      --light:   #dbeafe;
+      --pale:    #f0f6ff;
+      --steel:   #64748b;
+      --border:  #c5d8f0;
+      --white:   #ffffff;
+      --text:    #1e293b;
+      --muted:   #475569;
+      --hover:   #eef5ff;
+      --gold:    #f59e0b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #edf2f7; color: var(--text); min-height: 100vh; }
+
+    /* ── HEADER ── */
+    header {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 60%, var(--mid) 100%);
+      color: var(--white);
+      padding: 0;
+      box-shadow: 0 3px 12px rgba(0,0,0,.4);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .header-inner {
+      max-width: 1200px; margin: 0 auto;
+      display: flex; align-items: center; gap: 18px;
+      padding: 14px 24px;
+    }
+    .header-logo {
+      width: 48px; height: 48px; flex-shrink: 0;
+      background: var(--accent); border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; font-weight: 900; color: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,.3);
+      letter-spacing: -1px;
+    }
+    .header-titles { flex: 1; }
+    .header-titles h1 { font-size: 1.05rem; font-weight: 700; letter-spacing: .5px; }
+    .header-titles p { font-size: .72rem; opacity: .75; margin-top: 1px; }
+    nav { display: flex; gap: 4px; }
+    nav a {
+      color: rgba(255,255,255,.85); text-decoration: none;
+      padding: 8px 14px; border-radius: 8px;
+      font-size: .82rem; font-weight: 500;
+      transition: background .18s, color .18s;
+    }
+    nav a:hover, nav a.active {
+      background: rgba(255,255,255,.15); color: #fff;
+    }
+
+    /* ── LAYOUT ── */
+    .page { max-width: 1200px; margin: 0 auto; padding: 28px 20px 50px; }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--white); border-radius: 12px;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 6px rgba(30,60,100,.07);
+      padding: 24px;
+      margin-bottom: 22px;
+    }
+    .card-title {
+      font-size: .78rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1px; color: var(--mid); margin-bottom: 14px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .card-title::before {
+      content: ''; display: inline-block;
+      width: 4px; height: 16px; background: var(--accent); border-radius: 2px;
+    }
+
+    /* ── STAT BOXES ── */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 16px; margin-bottom: 24px; }
+    .stat-box {
+      background: var(--white); border-radius: 12px;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 5px rgba(30,60,100,.07);
+      padding: 18px 20px;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .stat-num { font-size: 2rem; font-weight: 800; color: var(--mid); line-height: 1; }
+    .stat-label { font-size: .72rem; text-transform: uppercase; letter-spacing: .8px; color: var(--steel); }
+
+    /* ── TABLES ── */
+    .table-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+    thead { background: var(--navy); color: var(--light); }
+    thead th { padding: 11px 14px; text-align: left; font-weight: 600; font-size: .78rem; letter-spacing: .4px; white-space: nowrap; }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background .12s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--hover); }
+    tbody td { padding: 10px 14px; vertical-align: top; }
+    .td-year { color: var(--mid); font-weight: 700; white-space: nowrap; }
+    .td-partes { font-weight: 600; color: var(--text); }
+    .td-causa { color: var(--muted); font-size: .8rem; }
+    .td-num { color: var(--steel); font-size: .8rem; }
+
+    /* ── BADGE ── */
+    .badge {
+      display: inline-block; padding: 2px 9px; border-radius: 99px;
+      font-size: .7rem; font-weight: 700; background: var(--light); color: var(--mid);
+    }
+    .badge-gold { background: #fef3c7; color: #92400e; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 18px; border-radius: 8px; border: none;
+      font-size: .84rem; font-weight: 600; cursor: pointer;
+      text-decoration: none; transition: all .18s;
+    }
+    .btn-primary { background: var(--mid); color: #fff; }
+    .btn-primary:hover { background: var(--blue); }
+    .btn-outline { background: transparent; color: var(--mid); border: 1.5px solid var(--border); }
+    .btn-outline:hover { background: var(--hover); border-color: var(--accent); }
+    .btn-sm { padding: 6px 12px; font-size: .76rem; }
+
+    /* ── FORMS ── */
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 14px; }
+    label { display: block; font-size: .74rem; font-weight: 600; color: var(--steel); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .5px; }
+    input, select {
+      width: 100%; padding: 9px 12px; border-radius: 8px;
+      border: 1.5px solid var(--border); font-size: .85rem;
+      outline: none; transition: border .15s;
+      background: var(--pale);
+    }
+    input:focus, select:focus { border-color: var(--accent); background: #fff; }
+    .form-actions { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; align-items: center; }
+
+    /* ── AUTOCOMPLETE ── */
+    .autocomplete-wrap { position: relative; }
+    .autocomplete-list {
+      position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 200;
+      background: #fff; border: 1.5px solid var(--border); border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.12); max-height: 220px; overflow-y: auto;
+    }
+    .autocomplete-item {
+      padding: 9px 14px; cursor: pointer; font-size: .83rem;
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid #f1f5fb;
+    }
+    .autocomplete-item:last-child { border-bottom: none; }
+    .autocomplete-item:hover { background: var(--hover); }
+
+    /* ── PAGINATION ── */
+    .pagination { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 18px; }
+    .page-btn {
+      padding: 6px 13px; border-radius: 7px; border: 1.5px solid var(--border);
+      background: #fff; color: var(--mid); font-size: .8rem; font-weight: 600; cursor: pointer;
+      transition: all .15s;
+    }
+    .page-btn:hover { background: var(--hover); border-color: var(--accent); }
+    .page-btn.active { background: var(--mid); color: #fff; border-color: var(--mid); }
+    .page-btn:disabled { opacity: .4; cursor: default; }
+
+    /* ── LINK ── */
+    a.row-link { color: var(--mid); text-decoration: none; }
+    a.row-link:hover { color: var(--accent); text-decoration: underline; }
+
+    /* ── RESULT COUNT ── */
+    .result-info { font-size: .8rem; color: var(--steel); margin-bottom: 12px; }
+
+    /* ── CHART BAR ── */
+    .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: .8rem; }
+    .bar-label { width: 130px; text-align: right; color: var(--muted); flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bar-track { flex: 1; background: var(--light); border-radius: 4px; height: 18px; overflow: hidden; }
+    .bar-fill { height: 100%; background: linear-gradient(90deg, var(--mid), var(--accent)); border-radius: 4px; transition: width .4s; }
+    .bar-val { width: 55px; color: var(--mid); font-weight: 700; }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center; padding: 18px; font-size: .72rem; color: var(--steel);
+      border-top: 1px solid var(--border); margin-top: 40px;
+      background: var(--white);
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
+      color: #fff; border-radius: 14px; padding: 36px 32px;
+      margin-bottom: 26px;
+      display: flex; align-items: center; gap: 28px;
+      box-shadow: 0 4px 20px rgba(15,39,68,.25);
+    }
+    .hero-icon { font-size: 52px; flex-shrink: 0; }
+    .hero h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: 6px; }
+    .hero p { font-size: .88rem; opacity: .8; max-width: 560px; line-height: 1.6; }
+    .hero-stats { margin-top: 16px; display: flex; gap: 24px; flex-wrap: wrap; }
+    .hero-stat span { font-size: 1.5rem; font-weight: 800; display: block; }
+    .hero-stat small { font-size: .72rem; opacity: .7; text-transform: uppercase; letter-spacing: .6px; }
+
+    @media(max-width:680px){
+      .hero { flex-direction: column; text-align: center; }
+      .hero-stats { justify-content: center; }
+      nav a { padding: 6px 10px; font-size: .75rem; }
+      .header-titles h1 { font-size: .9rem; }
+    }
+  </style>
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-logo">J2</div>
+    <div class="header-titles">
+      <h1>Archivo Histórico de la Provincia de Córdoba</h1>
+      <p>Juzgado Civil Capital · 2° Nominación · 1883–1925</p>
+    </div>
+    <nav>
+      <a href="/" class="{% if request.endpoint=='index' %}active{% endif %}">Inicio</a>
+      <a href="/buscar" class="{% if request.endpoint=='buscar' %}active{% endif %}">Buscar</a>
+      <a href="/estadisticas" class="{% if request.endpoint=='estadisticas' %}active{% endif %}">Estadísticas</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page">
+  {% block content %}{% endblock %}
+</div>
+
+<footer>
+  AHPC · Juzgado Civil Capital 2° Nominación · Índice Onomástico 1883–1925 &nbsp;|&nbsp; Área de Identificación Documental
+</footer>
+
+</body>
+</html>
