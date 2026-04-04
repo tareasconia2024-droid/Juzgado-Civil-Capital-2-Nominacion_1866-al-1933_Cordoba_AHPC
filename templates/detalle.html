@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}{{ reg.partes }} · AHPC Civil 2°{% endblock %}
+{% block content %}
+
+<div style="margin-bottom:16px;">
+  <a href="javascript:history.back()" class="btn btn-outline btn-sm">← Volver</a>
+</div>
+
+<div class="card">
+  <div class="card-title">Expediente judicial</div>
+  <h2 style="font-size:1.3rem; font-weight:800; color:var(--navy); margin-bottom:18px;">{{ reg.partes }}</h2>
+
+  <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px;">
+    <div>
+      <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.6px;color:var(--steel);margin-bottom:3px;">Año</div>
+      <div style="font-size:1.2rem;font-weight:700;color:var(--mid)">{{ reg.anio or '—' }}</div>
+    </div>
+    <div>
+      <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.6px;color:var(--steel);margin-bottom:3px;">Legajo</div>
+      <div style="font-size:1.2rem;font-weight:700;color:var(--mid)">{{ reg.legajo or '—' }}</div>
+    </div>
+    <div>
+      <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.6px;color:var(--steel);margin-bottom:3px;">Expediente</div>
+      <div style="font-size:1.2rem;font-weight:700;color:var(--mid)">{{ reg.expediente or '—' }}</div>
+    </div>
+    <div>
+      <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.6px;color:var(--steel);margin-bottom:3px;">Tipo de causa</div>
+      <div style="font-size:1rem;font-weight:600;color:var(--text)">
+        {% if reg.causa and reg.causa != 'sin datos' %}
+          <a href="/causa/{{ reg.causa|urlencode }}" class="row-link">{{ reg.causa }}</a>
+        {% else %}
+          {{ reg.causa or '—' }}
+        {% endif %}
+      </div>
+    </div>
+    <div style="grid-column:1/-1">
+      <div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.6px;color:var(--steel);margin-bottom:3px;">Fondo / Serie</div>
+      <div style="font-size:.85rem;color:var(--muted)">Poder Judicial de la Prov. de Córdoba → Juzgados Civiles → Juzgado Civil Capital 2° Nominación</div>
+    </div>
+  </div>
+
+  <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
+    <a href="/buscar?partes={{ reg.partes.split(',')[0]|urlencode }}" class="btn btn-outline btn-sm">🔍 Buscar mismo apellido</a>
+    {% if reg.causa and reg.causa != 'sin datos' %}
+    <a href="/causa/{{ reg.causa|urlencode }}" class="btn btn-outline btn-sm">📂 Ver todas las causas de este tipo</a>
+    {% endif %}
+  </div>
+</div>
+
+{% if otros_partes %}
+<div class="card">
+  <div class="card-title">Otros expedientes con apellido «{{ apellido }}»</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Año</th><th>Legajo</th><th>Expte.</th><th>Partes</th><th>Asunto</th></tr></thead>
+      <tbody>
+      {% for o in otros_partes %}
+      <tr>
+        <td class="td-year">{{ o.anio or '—' }}</td>
+        <td class="td-num">{{ o.legajo or '' }}</td>
+        <td class="td-num">{{ o.expediente or '' }}</td>
+        <td class="td-partes"><a href="/detalle/{{ o.id }}" class="row-link">{{ o.partes }}</a></td>
+        <td class="td-causa">{{ o.causa or '' }}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

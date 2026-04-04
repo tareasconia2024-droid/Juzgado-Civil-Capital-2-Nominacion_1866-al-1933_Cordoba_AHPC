@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}{{ causa }} · AHPC Civil 2°{% endblock %}
+{% block content %}
+
+<div style="margin-bottom:16px;">
+  <a href="/estadisticas" class="btn btn-outline btn-sm">← Estadísticas</a>
+</div>
+
+<div class="card">
+  <div class="card-title">Tipo de causa</div>
+  <h2 style="font-size:1.25rem;font-weight:800;color:var(--navy);margin-bottom:6px;">{{ causa }}</h2>
+  <p style="color:var(--steel);font-size:.84rem;">{{ registros|length }} expediente(s) encontrado(s) con este tipo de causa.</p>
+</div>
+
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Año</th><th>Legajo</th><th>Expte.</th><th>Partes</th></tr></thead>
+    <tbody>
+    {% for r in registros %}
+    <tr>
+      <td class="td-year">{{ r.anio or '—' }}</td>
+      <td class="td-num">{{ r.legajo or '' }}</td>
+      <td class="td-num">{{ r.expediente or '' }}</td>
+      <td class="td-partes"><a href="/detalle/{{ r.id }}" class="row-link">{{ r.partes }}</a></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

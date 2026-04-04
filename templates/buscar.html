@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% block title %}Búsqueda · AHPC Civil 2°{% endblock %}
+{% block content %}
+
+<div class="card">
+  <div class="card-title">Búsqueda avanzada de expedientes</div>
+  <div class="form-grid">
+
+    <div class="autocomplete-wrap">
+      <label>Partes / Apellido</label>
+      <input type="text" id="fPartes" value="{{ partes_pre }}" placeholder="Ej: González, Pérez con…" autocomplete="off" oninput="acPartes(this.value)">
+      <div class="autocomplete-list" id="acPartesList" style="display:none"></div>
+    </div>
+
+    <div class="autocomplete-wrap">
+      <label>Tipo de causa / Asunto</label>
+      <input type="text" id="fCausa" value="{{ causa_pre }}" placeholder="Ej: Sucesión, Cobro de pesos…" autocomplete="off" oninput="acCausa(this.value)">
+      <div class="autocomplete-list" id="acCausaList" style="display:none"></div>
+    </div>
+
+    <div>
+      <label>Año desde</label>
+      <input type="number" id="fDesde" placeholder="1866" min="1866" max="1933">
+    </div>
+    <div>
+      <label>Año hasta</label>
+      <input type="number" id="fHasta" placeholder="1933" min="1866" max="1933">
+    </div>
+    <div>
+      <label>N° Legajo</label>
+      <input type="text" id="fLegajo" placeholder="Ej: 28">
+    </div>
+    <div>
+      <label>N° Expediente</label>
+      <input type="text" id="fExpediente" placeholder="Ej: 18">
+    </div>
+    <div style="grid-column:1/-1">
+      <label>Búsqueda libre (texto completo)</label>
+      <input type="text" id="fTexto" placeholder="Palabras clave en partes o causa…">
+    </div>
+  </div>
+  <div class="form-actions">
+    <button class="btn btn-primary" onclick="buscar(1)">🔍 Buscar</button>
+    <button class="btn btn-outline" onclick="limpiar()">✕ Limpiar</button>
+    <button class="btn btn-outline" id="btnPdf" onclick="exportarPdf()" style="display:none">⬇ Exportar PDF</button>
+    <span id="resultInfo" class="result-info" style="margin-left:auto;"></span>
+  </div>
+</div>
+
+<div id="resultados"></div>
+<div class="pagination" id="paginacion" style="display:none"></div>
+
+<script>
+let _page=1, _total=0, _params={};
+
+function getParams(){
+  return {
+    partes:     document.getElementById('fPartes').value.trim(),
+    causa:      document.getElementById('fCausa').value.trim(),
+    anio_desde: document.getElementById('fDesde').value.trim(),
+    anio_hasta: document.getElementById('fHasta').value.trim(),
+    legajo:     document.getElementById('fLegajo').value.trim(),
+    expediente: document.getElementById('fExpediente').value.trim(),
+    texto:      document.getElementById('fTexto').value.trim(),
+  };
+}
+
+async function buscar(page=1){
+  _page=page; _params=getParams();
+  const p=new URLSearchParams(); 
+  Object.entries(_params).forEach(([k,v])=>{ if(v) p.set(k,v); });
+  p.set('page',page);
+  const res=await fetch('/api/buscar?'+p);
+  const data=await res.json();
+  _total=data.total;
+  renderResultados(data);
+  renderPaginacion(data);
+  document.getElementById('btnPdf').style.display = data.total>0?'inline-flex':'none';
+}
+
+function renderResultados(data){
+  const box=document.getElementById('resultados');
+  const info=document.getElementById('resultInfo');
+  if(!data.registros.length){ 
+    box.innerHTML='<div class="card" style="text-align:center;color:var(--steel);padding:40px;">Sin resultados para los criterios ingresados.</div>';
+    info.textContent='';
+    return;
+  }
+  const from=(data.page-1)*data.per_page+1, to=Math.min(data.page*data.per_page,data.total);
+  info.textContent=`Mostrando ${from}–${to} de ${data.total.toLocaleString('es')} resultado(s)`;
+  let html=`<div class="table-wrap"><table>
+    <thead><tr><th>Año</th><th>Legajo</th><th>Expte.</th><th>Partes</th><th>Asunto</th></tr></thead><tbody>`;
+  for(const r of data.registros){
+    html+=`<tr>
+      <td class="td-year">${r.anio||'—'}</td>
+      <td class="td-num">${r.legajo||''}</td>
+      <td class="td-num">${r.expediente||''}</td>
+      <td class="td-partes"><a href="/detalle/${r.id}" class="row-link">${r.partes||''}</a></td>
+      <td class="td-causa">${r.causa||''}</td>
+    </tr>`;
+  }
+  html+='</tbody></table></div>';
+  box.innerHTML=html;
+}
+
+function renderPaginacion(data){
+  const pag=document.getElementById('paginacion');
+  const pages=Math.ceil(data.total/data.per_page);
+  if(pages<=1){ pag.style.display='none'; return; }
+  pag.style.display='flex';
+  let html='';
+  html+=`<button class="page-btn" onclick="buscar(${_page-1})" ${_page<=1?'disabled':''}>‹ Ant.</button>`;
+  const start=Math.max(1,_page-3), end=Math.min(pages,_page+3);
+  if(start>1) html+=`<button class="page-btn" onclick="buscar(1)">1</button><span style="padding:0 4px;color:var(--steel)">…</span>`;
+  for(let i=start;i<=end;i++) html+=`<button class="page-btn ${i===_page?'active':''}" onclick="buscar(${i})">${i}</button>`;
+  if(end<pages) html+=`<span style="padding:0 4px;color:var(--steel)">…</span><button class="page-btn" onclick="buscar(${pages})">${pages}</button>`;
+  html+=`<button class="page-btn" onclick="buscar(${_page+1})" ${_page>=pages?'disabled':''}>Sig. ›</button>`;
+  html+=`<span style="font-size:.78rem;color:var(--steel);margin-left:8px;">Pág. ${_page}/${pages}</span>`;
+  pag.innerHTML=html;
+}
+
+function limpiar(){
+  ['fPartes','fCausa','fDesde','fHasta','fLegajo','fExpediente','fTexto'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('resultados').innerHTML='';
+  document.getElementById('paginacion').style.display='none';
+  document.getElementById('resultInfo').textContent='';
+  document.getElementById('btnPdf').style.display='none';
+}
+
+function exportarPdf(){
+  const p=new URLSearchParams(); 
+  Object.entries(_params).forEach(([k,v])=>{ if(v) p.set(k,v); });
+  window.open('/api/exportar-pdf?'+p,'_blank');
+}
+
+// Autocomplete partes
+let _acPt; async function acPartes(q){
+  clearTimeout(_acPt);
+  const list=document.getElementById('acPartesList');
+  if(q.length<2){ list.style.display='none'; return; }
+  _acPt=setTimeout(async()=>{
+    const r=await fetch('/api/partes-autocomplete?q='+encodeURIComponent(q));
+    const d=await r.json();
+    if(!d.length){ list.style.display='none'; return; }
+    list.innerHTML=d.map(x=>`<div class="autocomplete-item" onclick="document.getElementById('fPartes').value='${x.partes.replace(/'/g,"\\'")}'; document.getElementById('acPartesList').style.display='none';">
+      <span>${x.partes}</span><span class="badge">${x.total}</span></div>`).join('');
+    list.style.display='block';
+  },250);
+}
+
+// Autocomplete causa
+let _acCa; async function acCausa(q){
+  clearTimeout(_acCa);
+  const list=document.getElementById('acCausaList');
+  if(q.length<2){ list.style.display='none'; return; }
+  _acCa=setTimeout(async()=>{
+    const r=await fetch('/api/causas-autocomplete?q='+encodeURIComponent(q));
+    const d=await r.json();
+    if(!d.length){ list.style.display='none'; return; }
+    list.innerHTML=d.map(x=>`<div class="autocomplete-item" onclick="document.getElementById('fCausa').value='${x.causa.replace(/'/g,"\\'")}'; document.getElementById('acCausaList').style.display='none';">
+      <span>${x.causa}</span><span class="badge">${x.total}</span></div>`).join('');
+    list.style.display='block';
+  },250);
+}
+
+document.addEventListener('click', e=>{
+  if(!e.target.closest('.autocomplete-wrap')){
+    document.querySelectorAll('.autocomplete-list').forEach(l=>l.style.display='none');
+  }
+});
+
+// Buscar al cargar si hay parámetros previos
+{% if partes_pre or causa_pre %}
+document.getElementById('fPartes').value = {{ partes_pre|tojson }};
+document.getElementById('fCausa').value  = {{ causa_pre|tojson }};
+window.addEventListener('DOMContentLoaded', ()=>buscar(1));
+{% endif %}
+</script>
+{% endblock %}
